@@ -22,6 +22,8 @@ namespace DeliveryAppBackend.DataLayers.Entities
         public decimal DeliveryFee { get; set; }
         [MaxLength(20)]
         public string? OperatingHours { get; set; }
+        public ICollection<MenuItem>? MenuItems { get; set; }
+        public ICollection<Order>? Orders { get; set; }
 
     }
 }

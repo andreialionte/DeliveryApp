@@ -15,8 +15,12 @@ namespace DeliveryAppBackend.DataLayers.Entities
         [ForeignKey("RestaurantId")]
         public int RestaurantId { get; set; }
         public DateTime OrderDate { get; set; }
-        public string DeliveryAddress { get; set; }
+        [MaxLength]
+        public string? DeliveryAddress { get; set; }
+        [Range(18, 2)]
         public decimal TotalAmount { get; set; }
+
+        public ICollection<OrderItem>? OrderItems { get; set; }
 
     }
 }
