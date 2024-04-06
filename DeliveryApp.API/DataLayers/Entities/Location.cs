@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿/*using System.ComponentModel.DataAnnotations;
 
 namespace DeliveryApp.API.DataLayers.Entities
 {
@@ -10,3 +10,4 @@ namespace DeliveryApp.API.DataLayers.Entities
         public decimal? Longitude { get; set; }
     }
 }
+*/

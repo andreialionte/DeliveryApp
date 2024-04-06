@@ -1,5 +1,4 @@
-﻿using DeliveryApp.API.DataLayers.Entities;
-using DeliveryApp.API.DataLayers.Entities.Enums;
+﻿using DeliveryApp.API.DataLayers.Entities.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace DeliveryAppBackend.DataLayers.Entities
@@ -18,7 +17,7 @@ namespace DeliveryAppBackend.DataLayers.Entities
         [MaxLength(20)]
         public string? PhoneNumber { get; set; }
         public DeliveryAgentStatus? Status { get; set; }
-        public Location? Location { get; set; }
+        /*        public Location? Location { get; set; }*/
 
 
     }
