@@ -173,11 +173,12 @@ namespace DeliveryApp.API.Migrations
                 schema: "DeliveryAppSchema",
                 columns: table => new
                 {
-                    OrderItemId = table.Column<int>(type: "int", nullable: false),
+                    OrderItemId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<int>(type: "int", nullable: false),
-                    MenuItemId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MenuItemId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -187,15 +188,13 @@ namespace DeliveryApp.API.Migrations
                         column: x => x.MenuItemId,
                         principalSchema: "DeliveryAppSchema",
                         principalTable: "MenuItem",
-                        principalColumn: "MenuItemId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "MenuItemId");
                     table.ForeignKey(
-                        name: "FK_OrderItem_Order_OrderItemId",
-                        column: x => x.OrderItemId,
+                        name: "FK_OrderItem_Order_OrderId",
+                        column: x => x.OrderId,
                         principalSchema: "DeliveryAppSchema",
                         principalTable: "Order",
-                        principalColumn: "OrderId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "OrderId");
                 });
 
             migrationBuilder.CreateIndex(
@@ -209,6 +208,12 @@ namespace DeliveryApp.API.Migrations
                 schema: "DeliveryAppSchema",
                 table: "OrderItem",
                 column: "MenuItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderItem_OrderId",
+                schema: "DeliveryAppSchema",
+                table: "OrderItem",
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payment_UserId",

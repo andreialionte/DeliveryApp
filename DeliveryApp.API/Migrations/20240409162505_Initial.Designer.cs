@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DeliveryApp.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240404081836_DeleteBehavior.Restrict..ForOrder")]
-    partial class DeleteBehaviorRestrictForOrder
+    [Migration("20240409162505_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -189,7 +189,7 @@ namespace DeliveryApp.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
 
-                    b.Property<int>("MenuItemId")
+                    b.Property<int?>("MenuItemId")
                         .HasColumnType("int");
 
                     b.Property<int>("OrderId")
@@ -308,19 +308,15 @@ namespace DeliveryApp.API.Migrations
 
             modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.OrderItem", b =>
                 {
-                    b.HasOne("DeliveryAppBackend.DataLayers.Entities.MenuItem", "MenuItem")
+                    b.HasOne("DeliveryAppBackend.DataLayers.Entities.MenuItem", null)
                         .WithMany("OrderItems")
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("MenuItemId");
 
                     b.HasOne("DeliveryAppBackend.DataLayers.Entities.Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("MenuItem");
 
                     b.Navigation("Order");
                 });

@@ -5,7 +5,7 @@
 namespace DeliveryApp.API.Migrations
 {
     /// <inheritdoc />
-    public partial class FixBehaviors : Migration
+    public partial class AddingFK : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,6 +14,17 @@ namespace DeliveryApp.API.Migrations
                 name: "FK_OrderItem_Order_OrderId",
                 schema: "DeliveryAppSchema",
                 table: "OrderItem");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Description",
+                schema: "DeliveryAppSchema",
+                table: "MenuItem",
+                type: "nvarchar(255)",
+                maxLength: 255,
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)",
+                oldNullable: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_OrderItem_Order_OrderId",
@@ -34,6 +45,17 @@ namespace DeliveryApp.API.Migrations
                 schema: "DeliveryAppSchema",
                 table: "OrderItem");
 
+            migrationBuilder.AlterColumn<string>(
+                name: "Description",
+                schema: "DeliveryAppSchema",
+                table: "MenuItem",
+                type: "nvarchar(max)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(255)",
+                oldMaxLength: 255,
+                oldNullable: true);
+
             migrationBuilder.AddForeignKey(
                 name: "FK_OrderItem_Order_OrderId",
                 schema: "DeliveryAppSchema",
@@ -41,8 +63,7 @@ namespace DeliveryApp.API.Migrations
                 column: "OrderId",
                 principalSchema: "DeliveryAppSchema",
                 principalTable: "Order",
-                principalColumn: "OrderId",
-                onDelete: ReferentialAction.Restrict);
+                principalColumn: "OrderId");
         }
     }
 }

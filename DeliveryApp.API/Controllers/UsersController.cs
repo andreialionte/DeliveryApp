@@ -1,6 +1,7 @@
 ﻿using DeliveryApp.API.DataLayers;
 using DeliveryApp.API.DataLayers.Entities;
 using DeliveryApp.API.DTOs;
+using DeliveryApp.API.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ namespace DeliveryApp.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly IUserRepository _userRepository;
 
         public UsersController(DataContext context)
         {
@@ -21,14 +23,16 @@ namespace DeliveryApp.API.Controllers
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetUsers()
         {
-            IEnumerable<User> users = await _context.Users.ToListAsync();
+            /*IEnumerable<User> users = await _context.Users.ToListAsync();*/
+            var users = _userRepository.GetAll();
             return Ok(users);
         }
 
         [HttpGet("GetSingleUser")]
         public async Task<IActionResult> GetSingleUser(int userId)
         {
-            User? user = await _context.Users.SingleOrDefaultAsync(u => u.UserId == userId);
+            /*User? user = await _context.Users.SingleOrDefaultAsync(u => u.UserId == userId);*/
+            var user = _userRepository.GetById(userId);
             return Ok(user);
         }
 
@@ -39,6 +43,7 @@ namespace DeliveryApp.API.Controllers
             {
                 throw new Exception("The user already exist");
             }
+
 
             User? user = new User()
             {
@@ -53,9 +58,9 @@ namespace DeliveryApp.API.Controllers
                 Region = userDto.Region,
             };
 
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-
+            await _userRepository.Add(user);
+            /*            await _context.SaveChangesAsync();
+            */
             return Ok(new { Message = "The user was created", User = user });
         }
 

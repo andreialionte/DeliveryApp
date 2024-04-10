@@ -9,13 +9,13 @@ namespace DeliveryAppBackend.DataLayers.Entities
         [Key]
         public int MenuItemId { get; set; }
         public Restaurant? Restaurant { get; set; }
-        [ForeignKey("RestaurantId")]
+        [ForeignKey("Restaurant")]
         public int RestaurantId { get; set; }
         [MaxLength(30)]
         public string? Name { get; set; }
-        [MaxLength]
+        [MaxLength(255)] // Corrected maximum length
         public string? Description { get; set; }
-        [Range(18, 2)]
+        [Range(2, 18)] // Corrected range
         public decimal Price { get; set; }
         public MenuItemCategory Category { get; set; }
         /*public string? ImageURL { get; set; }*/

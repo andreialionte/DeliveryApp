@@ -134,7 +134,8 @@ namespace DeliveryApp.API.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(30)
@@ -186,7 +187,7 @@ namespace DeliveryApp.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
 
-                    b.Property<int>("MenuItemId")
+                    b.Property<int?>("MenuItemId")
                         .HasColumnType("int");
 
                     b.Property<int>("OrderId")
@@ -307,9 +308,7 @@ namespace DeliveryApp.API.Migrations
                 {
                     b.HasOne("DeliveryAppBackend.DataLayers.Entities.MenuItem", "MenuItem")
                         .WithMany("OrderItems")
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("MenuItemId");
 
                     b.HasOne("DeliveryAppBackend.DataLayers.Entities.Order", "Order")
                         .WithMany("OrderItems")

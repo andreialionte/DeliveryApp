@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -8,6 +8,12 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Systems\Controllers\MenuItemsControllerTest.cs\**" />
+    <EmbeddedResource Remove="Systems\Controllers\MenuItemsControllerTest.cs\**" />
+    <None Remove="Systems\Controllers\MenuItemsControllerTest.cs\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Bogus" Version="35.5.0" />

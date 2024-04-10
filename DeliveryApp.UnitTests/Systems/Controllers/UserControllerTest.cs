@@ -167,6 +167,7 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             result.Should().BeOfType<OkObjectResult>();
             var okObjResult = result as OkObjectResult;
             okObjResult.Should().NotBeNull();
+            context.Dispose();
         }
 
         [Fact]
@@ -180,7 +181,7 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             var context = new DataContext(db);
 
 
-            var userModel = new User(); // Assuming this is the entity representing a user
+            var userModel = new User();
             var userId = userModel.UserId;
 
             var userFaker = new Faker<User>()
@@ -207,9 +208,11 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
 
             // Assert
             var okResult = result.Should().BeOfType<OkObjectResult>();
-            /*            var okResult = result as OkObjectResult;*/
-            okResult.Should().NotBeNull();
 
+            var deletedUser = await context.Users.FindAsync(generateFakeUser.UserId);
+            deletedUser.Should().BeNull(); // User should not exist after deletion
+            okResult.Should().NotBeNull();
+            context.Dispose();
         }
 
     }

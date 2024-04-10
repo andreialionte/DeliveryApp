@@ -40,14 +40,12 @@ namespace DeliveryApp.API.DataLayers
             modelBuilder.Entity<OrderItem>()
                 .HasOne(o => o.Order)
                 .WithMany(m => m.OrderItems)
-                .HasForeignKey(k => k.OrderId)
-                .OnDelete(DeleteBehavior.Cascade); // Cascade delete from Order to OrderItem
+                .HasForeignKey(k => k.OrderId);
 
             modelBuilder.Entity<OrderItem>()
                 .HasOne(o => o.MenuItem)
                 .WithMany(m => m.OrderItems)
-                .HasForeignKey(k => k.MenuItemId)
-                .OnDelete(DeleteBehavior.Restrict); // Restrict cascade delete from MenuItem to OrderItem
+                .HasForeignKey(k => k.MenuItemId); // Restrict cascade delete from MenuItem to OrderItem
             modelBuilder.Entity<OrderItem>().Property(oi => oi.TotalPrice).HasColumnType("decimal(18,2)"); // Specify store type for TotalPrice
 
             modelBuilder.Entity<Payment>().ToTable("Payment").HasKey(k => k.PaymentId);

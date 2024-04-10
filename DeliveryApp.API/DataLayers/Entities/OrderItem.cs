@@ -8,15 +8,15 @@ namespace DeliveryAppBackend.DataLayers.Entities
         [Key]
         public int OrderItemId { get; set; }
         public Order? Order { get; set; }
-        [ForeignKey("OrderId")]
+        [ForeignKey("Order")]
         public int OrderId { get; set; }
         public MenuItem? MenuItem { get; set; }
-        [ForeignKey("MenuItemId")]
-        public int MenuItemId { get; set; }
+        [ForeignKey("MenuItem")]
+        public int? MenuItemId { get; set; }
         public int Quantity { get; set; }
-        [Range(18, 2)]
+        [Range(2, 18)] // Corrected range
         public decimal TotalPrice { get; set; }
-
     }
+
 }
 
