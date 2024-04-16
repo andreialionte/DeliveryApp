@@ -13,7 +13,7 @@ namespace DeliveryApp.API.DataLayers
         public DbSet<Auth> Auths { get; set; }
         public DbSet<DeliveryAgent> DeliveryAgents { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
-        public DbSet<Order> Order { get; set; }
+        public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Restaurant> Restaurants { get; set; }

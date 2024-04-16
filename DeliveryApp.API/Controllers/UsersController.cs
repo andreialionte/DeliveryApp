@@ -3,7 +3,6 @@ using DeliveryApp.API.DataLayers.Entities;
 using DeliveryApp.API.DTOs;
 using DeliveryApp.API.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryApp.API.Controllers
 {
@@ -14,38 +13,35 @@ namespace DeliveryApp.API.Controllers
         private readonly DataContext _context;
         private readonly IUserRepository _userRepository;
 
-        public UsersController(DataContext context)
+        public UsersController(DataContext context, IUserRepository userRepository)
         {
             _context = context;
+            _userRepository = userRepository;
         }
-
 
         [HttpGet("GetUsers")]
         public async Task<IActionResult> GetUsers()
         {
-            /*IEnumerable<User> users = await _context.Users.ToListAsync();*/
-            var users = _userRepository.GetAll();
+            var users = await _userRepository.GetAll(); // Await the async method
             return Ok(users);
         }
 
         [HttpGet("GetSingleUser")]
         public async Task<IActionResult> GetSingleUser(int userId)
         {
-            /*User? user = await _context.Users.SingleOrDefaultAsync(u => u.UserId == userId);*/
-            var user = _userRepository.GetById(userId);
+            var user = await _userRepository.GetById(userId); // Await the async method
             return Ok(user);
         }
 
         [HttpPost("AddUsers")]
         public async Task<IActionResult> AddUsers(UserDTO userDto)
         {
-            if (userDto.Email != null)
-            {
-                throw new Exception("The user already exist");
-            }
+            /*            if (userDto.Email != null)
+                        {
+                            throw new Exception("The user already exists");
+                        }*/
 
-
-            User? user = new User()
+            User user = new User()
             {
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
@@ -59,22 +55,18 @@ namespace DeliveryApp.API.Controllers
             };
 
             await _userRepository.Add(user);
-            /*            await _context.SaveChangesAsync();
-            */
             return Ok(new { Message = "The user was created", User = user });
         }
 
         [HttpPut("UpdateUser")]
         public async Task<IActionResult> UpdateUser(int userId, UserDTO userDTO)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            var user = await _userRepository.GetById(userId);
             if (user == null)
             {
-                // Handle the case when the user does not exist
-                throw new Exception("The user dosent exist");
+                throw new Exception("The user doesn't exist");
             }
 
-            // Update user properties
             user.FirstName = userDTO.FirstName;
             user.LastName = userDTO.LastName;
             user.Email = userDTO.Email;
@@ -84,9 +76,7 @@ namespace DeliveryApp.API.Controllers
             user.City = userDTO.City;
             user.Region = userDTO.Region;
 
-            // Save changes
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.Update(user, userId); // Await the async method
 
             return Ok(new { Message = "The user was updated!", User = user });
         }
@@ -94,15 +84,13 @@ namespace DeliveryApp.API.Controllers
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUser(int userId)
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+            var user = await _userRepository.GetById(userId); // Await the async method
             if (user == null)
             {
-                throw new Exception("Something is wrong");
+                throw new Exception("The user doesn't exist");
             }
 
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-
+            await _userRepository.Delete(userId); // Await the async method
 
             return Ok(new { Message = "The user was deleted!", User = user });
         }

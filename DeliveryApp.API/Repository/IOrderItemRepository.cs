@@ -2,7 +2,7 @@
 
 namespace DeliveryApp.API.Repository
 {
-    public interface IMenuItemRepository : IRepository<MenuItem>
+    public interface IOrderItemRepository : IRepository<OrderItem>
     {
     }
 }
