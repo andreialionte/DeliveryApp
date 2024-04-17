@@ -9,6 +9,11 @@ namespace DeliveryApp.API.Controllers
     {
         private readonly IOrderItemRepository _orderItemRepository;
 
+        public OrderItemsController(IOrderItemRepository orderItemRepository)
+        {
+            _orderItemRepository = orderItemRepository;
+        }
+
         [HttpGet("GetOrderItems")]
         public async Task<IActionResult> GetOrderItems()
         {
