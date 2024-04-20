@@ -116,7 +116,8 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
                 .RuleFor(r => r.OperatingHours, f => f.Date.ToString());
 
             var restaurant = restaurantFaker.Generate();
-            mockRepository.Setup(r => r.Update(It.IsAny<Restaurant>(), restaurant.RestaurantId)).ReturnsAsync(restaurant);
+            // Set up GetById to return the restaurant
+            mockRepository.Setup(r => r.GetById(restaurant.RestaurantId)).ReturnsAsync(restaurant);
 
             var controller = new RestaurantsController(mockRepository.Object);
 

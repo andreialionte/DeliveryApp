@@ -14,7 +14,7 @@ namespace DeliveryAppBackend.DataLayers.Entities
         [ForeignKey("MenuItem")]
         public int? MenuItemId { get; set; }
         public int Quantity { get; set; }
-        [Range(2, 18)] // Corrected range
+        [Range(2, 18)] 
         public decimal TotalPrice { get; set; }
     }
 

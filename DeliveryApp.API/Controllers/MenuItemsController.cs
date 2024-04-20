@@ -55,7 +55,20 @@ namespace DeliveryApp.API.Controllers
         [HttpPut("UpdateMenuItems")]
         public async Task<IActionResult> UpdateMenuItems(MenuItemDTO menuItemDto, int menuId)
         {
-            return Ok();
+            var existingMenuItem = await _menuItemRepository.GetById(menuId);
+
+            if (existingMenuItem == null)
+            {
+                throw new Exception("MenuItem not found");
+            }
+
+            existingMenuItem.Name = menuItemDto.Name;
+            existingMenuItem.Description = menuItemDto.Description;
+            existingMenuItem.Price = menuItemDto.Price;
+            existingMenuItem.Category = menuItemDto.Category;
+
+            await _menuItemRepository.Update(existingMenuItem, menuId);
+            return Ok(existingMenuItem);
         }
 
         [HttpDelete("DeleteMenuItems")]

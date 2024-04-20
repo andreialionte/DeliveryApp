@@ -14,6 +14,9 @@ namespace DeliveryAppBackend.DataLayers.Entities
         public Restaurant? Restaurant { get; set; }
         [ForeignKey("RestaurantId")]
         public int RestaurantId { get; set; }
+        public DeliveryAgent? DeliveryAgent { get; set; }
+        [ForeignKey("DeliveryAgentId")]
+        public int DeliveryAgentId { get; set; }
         public DateTime OrderDate { get; set; }
         [MaxLength]
         public string? DeliveryAddress { get; set; }
@@ -21,6 +24,8 @@ namespace DeliveryAppBackend.DataLayers.Entities
         public decimal TotalAmount { get; set; }
 
         public ICollection<OrderItem>? OrderItems { get; set; }
+        
+        //here we need to add delivery agent and order to be add in db after payment was made
 
     }
 }

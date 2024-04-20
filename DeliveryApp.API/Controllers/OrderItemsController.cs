@@ -1,4 +1,6 @@
-﻿using DeliveryApp.API.Repository;
+﻿using DeliveryApp.API.DTOs;
+using DeliveryApp.API.Repository;
+using DeliveryAppBackend.DataLayers.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeliveryApp.API.Controllers
@@ -17,19 +19,35 @@ namespace DeliveryApp.API.Controllers
         [HttpGet("GetOrderItems")]
         public async Task<IActionResult> GetOrderItems()
         {
-            return Ok();
+            var orderItems = await _orderItemRepository.GetAll();
+            if (orderItems == null)
+            {
+                throw new Exception("Order Items not found");
+            }
+            return Ok(orderItems);
         }
 
         [HttpGet("GetSingleOrderItem")]
-        public async Task<IActionResult> GetSingleOrderItem()
+        public async Task<IActionResult> GetSingleOrderItem(int orderItemId)
         {
-            return Ok();
+            var orderItems = await _orderItemRepository.GetById(orderItemId);
+            if (orderItems == null)
+            {
+                throw new Exception($"Order Item with Id ({orderItems.OrderId}) not found");
+            }
+            return Ok(orderItems);
         }
 
         [HttpPost("AddOrderItems")]
-        public async Task<IActionResult> AddOrderItems()
+        public async Task<IActionResult> AddOrderItems(OrderItemDTO orderItemdTo)
         {
-            return Ok();
+            var orderItem = new OrderItem()
+            {
+                Quantity = orderItemdTo.Quantity,
+                TotalPrice = orderItemdTo.TotalPrice
+            };
+            var newOrderItem = _orderItemRepository.Add(orderItem);
+            return Ok(newOrderItem);
         }
 
         [HttpPut("UpdateOrderItems")]
@@ -39,9 +57,10 @@ namespace DeliveryApp.API.Controllers
         }
 
         [HttpDelete("DeleteOrderItems")]
-        public async Task<IActionResult> DeleteOrderItems()
+        public async Task<IActionResult> DeleteOrderItems(int orderId)
         {
-            return Ok();
+            var orderItems = await _orderItemRepository.Delete(orderId);
+            return Ok(orderItems);
         }
     }
 }

@@ -71,7 +71,7 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
         {
             // Arrange
             var mockRepository = new Mock<IDeliveryAgentsRepository>();
-            var agentDto = new DeliveryAgentDTO(); // Provide necessary data for DeliveryAgentDTO
+            var agentDto = new DeliveryAgentDTO(); 
 
             var agentFaker = new Faker<DeliveryAgent>()
                 .RuleFor(a => a.DeliveryAgentId, f => f.Random.Number(1, 1000))
@@ -120,7 +120,7 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             };
 
             mockRepository.Setup(repo => repo.GetById(existingAgentId)).ReturnsAsync(existingAgent);
-
+            mockRepository.Setup(repo => repo.Update(It.IsAny<DeliveryAgent>(), existingAgentId)).ReturnsAsync(existingAgent);
             var controller = new DeliveryAgentsController(mockRepository.Object);
 
             // Act

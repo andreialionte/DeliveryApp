@@ -53,26 +53,26 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             var moqDataContext = new Mock<DataContext>(new DbContextOptions<DataContext>());
 
             var faker = new Faker<MenuItem>()
-    .RuleFor(m => m.MenuItemId, f => f.IndexFaker + 1)
-    .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
-    .RuleFor(m => m.Name, f => f.Commerce.ProductName())
-    .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
-    .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
-    .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
-            var fakeMenuItems = faker.Generate();
+                .RuleFor(m => m.MenuItemId, f => f.IndexFaker + 1)
+                .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
+                .RuleFor(m => m.Name, f => f.Commerce.ProductName())
+                .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
+                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
+                .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
+            var fakeMenuItem = faker.Generate();
 
-            moqRepository.Setup(r => r.GetById(fakeMenuItems.MenuItemId)).ReturnsAsync(fakeMenuItems);
+            moqRepository.Setup(r => r.GetById(fakeMenuItem.MenuItemId)).ReturnsAsync(fakeMenuItem);
 
             var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object);
 
             //ACT
-            var result = await controller.GetSingleMenuItem(fakeMenuItems.MenuItemId);
+            var result = await controller.GetSingleMenuItem(fakeMenuItem.MenuItemId);
 
             //Assert
             result.Should().BeOfType<OkObjectResult>();
-
+            var menuItem = (result as OkObjectResult).Value.Should().BeAssignableTo<MenuItem>().Subject;
+            menuItem.Should().BeEquivalentTo(fakeMenuItem);
         }
-
         [Fact]
         public async Task AddMenuItems_ReturnsOk()
         {
@@ -108,35 +108,40 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
         [Fact]
         public async Task UpdateMenuItems_ReturnsOk()
         {
-            //here we need to to with a MenuItemDTO to create and update it with that DTO and create a FakeMenuItem.
-            //Arrange
+            // Arrange
             var moqRepository = new Mock<IMenuItemRepository>();
             var moqDataContext = new Mock<DataContext>(new DbContextOptions<DataContext>());
 
-            var menuItem = new MenuItemDTO();
+            var menuItemDto = new MenuItemDTO
+            {
+                Name = "Updated Item",
+                Description = "Updated Description",
+                Price = 15.99m,
+                Category = MenuItemCategory.MainCourse
+            };
 
             var faker = new Faker<MenuItem>()
-               .RuleFor(m => m.MenuItemId, f => f.IndexFaker + 1)
-               .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
-               .RuleFor(m => m.Name, f => f.Commerce.ProductName())
-               .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
-               .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
-               .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
+                .RuleFor(m => m.MenuItemId, f => f.IndexFaker + 1)
+                .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
+                .RuleFor(m => m.Name, f => f.Commerce.ProductName())
+                .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
+                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
+                .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
             var fakeMenuItem = faker.Generate();
 
-            moqRepository.Setup(r => r.Update(fakeMenuItem, fakeMenuItem.MenuItemId)).ReturnsAsync(fakeMenuItem);
+            moqRepository.Setup(r => r.GetById(fakeMenuItem.MenuItemId)).ReturnsAsync(fakeMenuItem);
+            moqRepository.Setup(r => r.Update(It.IsAny<MenuItem>(), fakeMenuItem.MenuItemId)).ReturnsAsync(fakeMenuItem);
 
             var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object);
-            //Act
-            var result = await controller.UpdateMenuItems(menuItem, fakeMenuItem.MenuItemId);
 
-            //Assert
+            // Act
+            var result = await controller.UpdateMenuItems(menuItemDto, fakeMenuItem.MenuItemId);
+
+            // Assert
             result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
-            okResult.Should().Be(okResult);
-            okResult.Should().BeEquivalentTo(fakeMenuItem);
             okResult.Should().NotBeNull();
-
+            okResult.Value.Should().BeEquivalentTo(fakeMenuItem);
         }
 
         [Fact]
