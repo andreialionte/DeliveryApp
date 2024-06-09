@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DeliveryApp.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240420190357_Adding_FK_DeliveryAgent_To_Order")]
-    partial class Adding_FK_DeliveryAgent_To_Order
+    [Migration("20240517152832_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -131,7 +131,10 @@ namespace DeliveryApp.API.Migrations
             modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.MenuItem", b =>
                 {
                     b.Property<int>("MenuItemId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MenuItemId"));
 
                     b.Property<int>("Category")
                         .HasColumnType("int");
@@ -151,6 +154,8 @@ namespace DeliveryApp.API.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("MenuItemId");
+
+                    b.HasIndex("RestaurantId");
 
                     b.ToTable("MenuItem", "DeliveryAppSchema");
                 });
@@ -286,7 +291,7 @@ namespace DeliveryApp.API.Migrations
                 {
                     b.HasOne("DeliveryAppBackend.DataLayers.Entities.Restaurant", "Restaurant")
                         .WithMany("MenuItems")
-                        .HasForeignKey("MenuItemId")
+                        .HasForeignKey("RestaurantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

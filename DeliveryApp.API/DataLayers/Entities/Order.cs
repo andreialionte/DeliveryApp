@@ -24,7 +24,7 @@ namespace DeliveryAppBackend.DataLayers.Entities
         public decimal TotalAmount { get; set; }
 
         public ICollection<OrderItem>? OrderItems { get; set; }
-        
+
         //here we need to add delivery agent and order to be add in db after payment was made
 
     }

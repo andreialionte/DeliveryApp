@@ -30,28 +30,35 @@ namespace DeliveryApp.API.Repository
             return menuItem;
         }
 
-        public async Task<MenuItem> Update(MenuItem menu, int menuId)
+        public async Task<MenuItem> Update(MenuItem menuItem, int menuId)
         {
-            var menuitem = await _context.MenuItems.FirstOrDefaultAsync(m => m.MenuItemId == menuId);
-            if (menuitem != null)
+            var existingMenuItem = await _context.MenuItems.FirstOrDefaultAsync(m => m.MenuItemId == menuId);
+            if (existingMenuItem == null)
             {
-                throw new Exception("This item already exist");
+                throw new Exception("Menu item not found");
             }
-            _context.Update(menuitem);
+
+            existingMenuItem.Name = menuItem.Name;
+            existingMenuItem.Description = menuItem.Description;
+            existingMenuItem.Price = menuItem.Price;
+            existingMenuItem.Category = menuItem.Category;
+            existingMenuItem.RestaurantId = menuItem.RestaurantId;
+
             await _context.SaveChangesAsync();
-            return menuitem;
+            return existingMenuItem;
         }
 
         public async Task<MenuItem> Delete(int menuId)
         {
-            var menuitem = await _context.MenuItems.FirstOrDefaultAsync(m => m.MenuItemId == menuId);
-            if (menuitem == null)
+            var existingMenuItem = await _context.MenuItems.FirstOrDefaultAsync(m => m.MenuItemId == menuId);
+            if (existingMenuItem == null)
             {
-                throw new Exception("This menuItem does not exist");
+                throw new Exception("Menu item not found");
             }
-            _context.Remove(menuitem);
+
+            _context.MenuItems.Remove(existingMenuItem);
             await _context.SaveChangesAsync();
-            return menuitem;
+            return existingMenuItem;
         }
     }
 }

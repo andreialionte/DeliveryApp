@@ -2,6 +2,7 @@
 using DeliveryApp.API.DataLayers.Entities;
 using DeliveryApp.API.DTOs;
 using DeliveryApp.API.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeliveryApp.API.Controllers
@@ -20,13 +21,14 @@ namespace DeliveryApp.API.Controllers
         }
 
         [HttpGet("GetUsers")]
+        /*[Authorize(Roles = "Admin")]*/
         public async Task<IActionResult> GetUsers()
         {
             var users = await _userRepository.GetAll(); // Await the async method
             return Ok(users);
         }
 
-        [HttpGet("GetSingleUser")]
+        [HttpGet("GetSingleUser"), AllowAnonymous]
         public async Task<IActionResult> GetSingleUser(int userId)
         {
             var user = await _userRepository.GetById(userId); // Await the async method
@@ -34,6 +36,7 @@ namespace DeliveryApp.API.Controllers
         }
 
         [HttpPost("AddUsers")]
+        /*        [Authorize(Roles = "Admin")]*/
         public async Task<IActionResult> AddUsers(UserDTO userDto)
         {
             /*            if (userDto.Email != null)
@@ -49,7 +52,7 @@ namespace DeliveryApp.API.Controllers
                 PhoneNumber = userDto.PhoneNumber,
                 Role = userDto.Role,
                 Address = userDto.Address,
-                PostalCode = userDto.PostalCode,
+                /*                PostalCode = userDto.PostalCode,*/
                 City = userDto.City,
                 Region = userDto.Region,
             };
@@ -58,7 +61,7 @@ namespace DeliveryApp.API.Controllers
             return Ok(new { Message = "The user was created", User = user });
         }
 
-        [HttpPut("UpdateUser")]
+        [HttpPut("UpdateUser"), AllowAnonymous]
         public async Task<IActionResult> UpdateUser(int userId, UserDTO userDTO)
         {
             var user = await _userRepository.GetById(userId);
@@ -81,7 +84,7 @@ namespace DeliveryApp.API.Controllers
             return Ok(new { Message = "The user was updated!", User = user });
         }
 
-        [HttpDelete("DeleteUser")]
+        [HttpDelete("DeleteUser"), AllowAnonymous]
         public async Task<IActionResult> DeleteUser(int userId)
         {
             var user = await _userRepository.GetById(userId); // Await the async method

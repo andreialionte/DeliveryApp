@@ -94,10 +94,11 @@ namespace DeliveryApp.API.Migrations
                 schema: "DeliveryAppSchema",
                 columns: table => new
                 {
-                    MenuItemId = table.Column<int>(type: "int", nullable: false),
+                    MenuItemId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     RestaurantId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Category = table.Column<int>(type: "int", nullable: false)
                 },
@@ -105,12 +106,11 @@ namespace DeliveryApp.API.Migrations
                 {
                     table.PrimaryKey("PK_MenuItem", x => x.MenuItemId);
                     table.ForeignKey(
-                        name: "FK_MenuItem_Restaurant_MenuItemId",
-                        column: x => x.MenuItemId,
+                        name: "FK_MenuItem_Restaurant_RestaurantId",
+                        column: x => x.RestaurantId,
                         principalSchema: "DeliveryAppSchema",
                         principalTable: "Restaurant",
-                        principalColumn: "RestaurantId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "RestaurantId");
                 });
 
             migrationBuilder.CreateTable(
@@ -121,6 +121,7 @@ namespace DeliveryApp.API.Migrations
                     OrderId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     RestaurantId = table.Column<int>(type: "int", nullable: false),
+                    DeliveryAgentId = table.Column<int>(type: "int", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DeliveryAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
@@ -128,6 +129,13 @@ namespace DeliveryApp.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Order", x => x.OrderId);
+                    table.ForeignKey(
+                        name: "FK_Order_DeliveryAgent_DeliveryAgentId",
+                        column: x => x.DeliveryAgentId,
+                        principalSchema: "DeliveryAppSchema",
+                        principalTable: "DeliveryAgent",
+                        principalColumn: "DeliveryAgentId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Order_Restaurant_OrderId",
                         column: x => x.OrderId,
@@ -176,9 +184,9 @@ namespace DeliveryApp.API.Migrations
                     OrderItemId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<int>(type: "int", nullable: false),
+                    MenuItemId = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MenuItemId = table.Column<int>(type: "int", nullable: true)
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -194,8 +202,21 @@ namespace DeliveryApp.API.Migrations
                         column: x => x.OrderId,
                         principalSchema: "DeliveryAppSchema",
                         principalTable: "Order",
-                        principalColumn: "OrderId");
+                        principalColumn: "OrderId",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MenuItem_RestaurantId",
+                schema: "DeliveryAppSchema",
+                table: "MenuItem",
+                column: "RestaurantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Order_DeliveryAgentId",
+                schema: "DeliveryAppSchema",
+                table: "Order",
+                column: "DeliveryAgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order_UserId",
@@ -230,10 +251,6 @@ namespace DeliveryApp.API.Migrations
                 schema: "DeliveryAppSchema");
 
             migrationBuilder.DropTable(
-                name: "DeliveryAgent",
-                schema: "DeliveryAppSchema");
-
-            migrationBuilder.DropTable(
                 name: "OrderItem",
                 schema: "DeliveryAppSchema");
 
@@ -247,6 +264,10 @@ namespace DeliveryApp.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Order",
+                schema: "DeliveryAppSchema");
+
+            migrationBuilder.DropTable(
+                name: "DeliveryAgent",
                 schema: "DeliveryAppSchema");
 
             migrationBuilder.DropTable(

@@ -34,7 +34,7 @@ namespace DeliveryApp.API.Controllers
                 DeliveryAddress = orderDto.DeliveryAddress,
                 TotalAmount = orderDto.TotalAmount
             };
-            
+
             var newOrder = await _orderRepository.Add(order);
             return Ok(newOrder);
             //we need to handle the total amount based of orderitem like what we select to order and how much and after
@@ -44,8 +44,8 @@ namespace DeliveryApp.API.Controllers
         [HttpPut("UpdateOrders")]
         public async Task<IActionResult> UpdateOrders(OrderDTO orderDto, int orderId)
         {
-            var existingOrder = await  _orderRepository.GetById(orderId);
-            if(existingOrder == null)
+            var existingOrder = await _orderRepository.GetById(orderId);
+            if (existingOrder == null)
             {
                 throw new Exception("Order not found");
             }

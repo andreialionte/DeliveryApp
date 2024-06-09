@@ -1,10 +1,8 @@
-﻿using Bogus;
-using DeliveryApp.API.Controllers;
+﻿using AutoMapper;
+using Bogus;
 using DeliveryApp.API.DataLayers;
-using DeliveryApp.API.DataLayers.Entities.Enums;
 using DeliveryApp.API.DTOs;
 using DeliveryApp.API.Repository;
-using DeliveryAppBackend.DataLayers.Entities;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,19 +18,20 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             // ARRANGE
             var moqRepository = new Mock<IMenuItemRepository>();
             var moqDataContext = new Mock<DataContext>(new DbContextOptions<DataContext>());
+            var moqMapper = new Mock<IMapper>();
 
             var faker = new Faker<MenuItem>()
                 .RuleFor(m => m.MenuItemId, f => f.IndexFaker + 1)
                 .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
                 .RuleFor(m => m.Name, f => f.Commerce.ProductName())
                 .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
-                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
-                .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
+                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18));
+            /*                .RuleFor(m => m.Category, f => f.PickRandom<Category>());*/
 
             var fakeMenuItems = faker.Generate(10);
 
             moqRepository.Setup(r => r.GetAll()).ReturnsAsync(fakeMenuItems);
-            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object);
+            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object, moqMapper.Object);
 
             // ACT
             var result = await controller.GetMenuItems();
@@ -51,19 +50,20 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             //Arrange
             var moqRepository = new Mock<IMenuItemRepository>();
             var moqDataContext = new Mock<DataContext>(new DbContextOptions<DataContext>());
+            var moqMapper = new Mock<IMapper>();
 
             var faker = new Faker<MenuItem>()
                 .RuleFor(m => m.MenuItemId, f => f.IndexFaker + 1)
                 .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
                 .RuleFor(m => m.Name, f => f.Commerce.ProductName())
                 .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
-                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
-                .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
+                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18));
+            /*                .RuleFor(m => m.Category, f => f.PickRandom<gg>());*/
             var fakeMenuItem = faker.Generate();
 
             moqRepository.Setup(r => r.GetById(fakeMenuItem.MenuItemId)).ReturnsAsync(fakeMenuItem);
 
-            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object);
+            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object, moqMapper.Object);
 
             //ACT
             var result = await controller.GetSingleMenuItem(fakeMenuItem.MenuItemId);
@@ -79,6 +79,7 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             // ARRANGE
             var moqRepository = new Mock<IMenuItemRepository>();
             var moqDataContext = new Mock<DataContext>(new DbContextOptions<DataContext>());
+            var moqMapper = new Mock<IMapper>();
             var menuItemDto = new MenuItemDTO();
 
             var faker = new Faker<MenuItem>()
@@ -86,16 +87,16 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
                 .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
                 .RuleFor(m => m.Name, f => f.Commerce.ProductName())
                 .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
-                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
-                .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
+                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18));
+            /*                .RuleFor(m => m.Category, f => f.PickRandom<gg>());*/
             var fakeMenuItem = faker.Generate();
 
             moqRepository.Setup(r => r.Add(It.IsAny<MenuItem>())).ReturnsAsync(fakeMenuItem);
 
-            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object);
+            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object, moqMapper.Object);
 
             // ACT
-            var result = await controller.AddMenuItems(menuItemDto);
+            var result = await controller.AddMenuItem(menuItemDto);
 
             // ASSERT
             result.Should().BeOfType<OkObjectResult>();
@@ -111,13 +112,14 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             // Arrange
             var moqRepository = new Mock<IMenuItemRepository>();
             var moqDataContext = new Mock<DataContext>(new DbContextOptions<DataContext>());
+            var moqMapper = new Mock<IMapper>();
 
             var menuItemDto = new MenuItemDTO
             {
                 Name = "Updated Item",
                 Description = "Updated Description",
                 Price = 15.99m,
-                Category = MenuItemCategory.MainCourse
+                /*                Category = Category*/
             };
 
             var faker = new Faker<MenuItem>()
@@ -125,17 +127,17 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
                 .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
                 .RuleFor(m => m.Name, f => f.Commerce.ProductName())
                 .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
-                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
-                .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
+                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18));
+            /*                .RuleFor(m => m.Category, f => f.PickRandom<gg>());*/
             var fakeMenuItem = faker.Generate();
 
             moqRepository.Setup(r => r.GetById(fakeMenuItem.MenuItemId)).ReturnsAsync(fakeMenuItem);
             moqRepository.Setup(r => r.Update(It.IsAny<MenuItem>(), fakeMenuItem.MenuItemId)).ReturnsAsync(fakeMenuItem);
 
-            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object);
+            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object, moqMapper.Object);
 
             // Act
-            var result = await controller.UpdateMenuItems(menuItemDto, fakeMenuItem.MenuItemId);
+            var result = await controller.UpdateMenuItem(fakeMenuItem.MenuItemId, menuItemDto);
 
             // Assert
             result.Should().BeOfType<OkObjectResult>();
@@ -150,22 +152,23 @@ namespace DeliveryApp.UnitTests.Systems.Controllers
             // ARRANGE
             var moqRepository = new Mock<IMenuItemRepository>();
             var moqDataContext = new Mock<DataContext>(new DbContextOptions<DataContext>());
+            var moqMapper = new Mock<IMapper>();
 
             var faker = new Faker<MenuItem>()
                 .RuleFor(m => m.MenuItemId, f => f.IndexFaker + 1)
                 .RuleFor(m => m.RestaurantId, f => f.Random.Number(1, 1000))
                 .RuleFor(m => m.Name, f => f.Commerce.ProductName())
                 .RuleFor(m => m.Description, f => f.Commerce.ProductDescription())
-                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18))
-                .RuleFor(m => m.Category, f => f.PickRandom<MenuItemCategory>());
+                .RuleFor(m => m.Price, f => f.Random.Decimal(2, 18));
+            /*                .RuleFor(m => m.Category, f => f.PickRandom<gg>());*/
             var fakeMenuItem = faker.Generate();
 
             moqRepository.Setup(r => r.Delete(fakeMenuItem.MenuItemId)).ReturnsAsync(fakeMenuItem);
 
-            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object);
+            var controller = new MenuItemsController(moqDataContext.Object, moqRepository.Object, moqMapper.Object);
 
             // ACT
-            var result = await controller.DeleteMenuItems(fakeMenuItem.MenuItemId);
+            var result = await controller.DeleteMenuItem(fakeMenuItem.MenuItemId);
 
             // ASSERT
             result.Should().BeOfType<OkObjectResult>();

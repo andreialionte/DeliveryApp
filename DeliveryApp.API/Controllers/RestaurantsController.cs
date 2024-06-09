@@ -1,5 +1,7 @@
-﻿using DeliveryApp.API.DTOs;
+﻿using AutoMapper;
+using DeliveryApp.API.DTOs;
 using DeliveryApp.API.Repository;
+using DeliveryApp.API.Services;
 using DeliveryAppBackend.DataLayers.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +12,15 @@ namespace DeliveryApp.API.Controllers
     public class RestaurantsController : ControllerBase
     {
         private readonly IRestaurantRepository _restaurantRepository;
+        private readonly IMapper _mapper;
+        private readonly IFileService _fileService;
 
 
-        public RestaurantsController(IRestaurantRepository restaurantRepository)
+        public RestaurantsController(IRestaurantRepository restaurantRepository, IMapper mapper, IFileService fileService)
         {
             _restaurantRepository = restaurantRepository;
+            _mapper = mapper;
+            _fileService = fileService;
         }
 
         [HttpGet("GetRestaurants")]
@@ -34,12 +40,16 @@ namespace DeliveryApp.API.Controllers
         [HttpPost("AddRestaurants")]
         public async Task<IActionResult> AddRestaurants(RestaurantDTO restaurantDto)
         {
-            var restaurant = new Restaurant()
-            {
-                Name = restaurantDto.Name,
-                Address = restaurantDto.Address,
-                PhoneNumber = restaurantDto.PhoneNumber
-            };  
+            /*            if (restaurantDto.Photo == null)
+                        {
+                            return BadRequest("Photo is required.");
+                        }*/
+
+            var restaurant = _mapper.Map<Restaurant>(restaurantDto);
+
+            var photoUrl = await _fileService.Upload(restaurantDto.formFile, "RestaurantBgPhotos/");
+            restaurant.RestaurantPhotoUrl = photoUrl;
+
             var newRestaurant = await _restaurantRepository.Add(restaurant);
             return Ok(newRestaurant);
         }
@@ -53,10 +63,14 @@ namespace DeliveryApp.API.Controllers
             {
                 throw new Exception("Restaurant not found");
             }
-            
+
             existingRestaurant.Name = restaurantDto.Name;
+            /*            existingRestaurant.Description = restaurantDto.Description;*/
             existingRestaurant.Address = restaurantDto.Address;
+            existingRestaurant.Email = restaurantDto.Email;
             existingRestaurant.PhoneNumber = restaurantDto.PhoneNumber;
+            /*            existingRestaurant.DeliveryFee = restaurantDto.DeliveryFee;*/
+            existingRestaurant.OperatingHours = restaurantDto.OperatingHours;
 
             await _restaurantRepository.Update(existingRestaurant, restaurantId);
 

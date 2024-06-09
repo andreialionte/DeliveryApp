@@ -39,7 +39,7 @@ namespace DeliveryApp.API.Repository
             }
 
             existingOrderItem.Order = orderItem.Order;
-            existingOrderItem.MenuItem = orderItem.MenuItem;
+            /*            existingOrderItem.MenuItem = orderItem.MenuItem;*/
             existingOrderItem.Quantity = orderItem.Quantity;
             existingOrderItem.TotalPrice = orderItem.TotalPrice;
 

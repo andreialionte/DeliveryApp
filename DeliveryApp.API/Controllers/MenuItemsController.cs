@@ -1,83 +1,104 @@
-﻿using DeliveryApp.API.DataLayers;
+﻿using AutoMapper;
+using DeliveryApp.API.DataLayers;
 using DeliveryApp.API.DTOs;
 using DeliveryApp.API.Repository;
-using DeliveryAppBackend.DataLayers.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-
-namespace DeliveryApp.API.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class MenuItemsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class MenuItemsController : ControllerBase
+    private readonly DataContext _context;
+    private readonly IMenuItemRepository _menuItemRepository;
+    private readonly IMapper _mapper;
+    /*    private readonly ILogger<MenuItemsController> _logger;*/
+
+    public MenuItemsController(DataContext context, IMenuItemRepository menuItemRepository, IMapper mapper /*ILogger<MenuItemsController> logger*/)
     {
-        private readonly DataContext _context;
-        private readonly IMenuItemRepository _menuItemRepository;
+        _context = context;
+        _menuItemRepository = menuItemRepository;
+        _mapper = mapper;
+        /*        _logger = logger;*/
+    }
 
-        public MenuItemsController(DataContext context, IMenuItemRepository menuItemRepository)
+    [HttpGet("GetMenuItems")]
+    public async Task<IActionResult> GetMenuItems()
+    {
+        var menuItems = await _menuItemRepository.GetAll();
+        return Ok(menuItems);
+    }
+
+    [HttpGet("GetSingleMenuItem/{menuId}")]
+    public async Task<IActionResult> GetSingleMenuItem(int menuId)
+    {
+        var menuItem = await _menuItemRepository.GetById(menuId);
+        if (menuItem == null)
         {
-            _context = context;
-            _menuItemRepository = menuItemRepository;
+            return NotFound("MenuItem not found");
+        }
+        return Ok(menuItem);
+    }
+
+    [HttpPost("AddMenuItem")]
+    public async Task<IActionResult> AddMenuItem(MenuItemDTO menuItemDTO)
+    {
+        var restaurant = await _context.Restaurants.FindAsync(menuItemDTO.RestaurantId);
+        var category = await _context.Categories.FindAsync(menuItemDTO.CategoryId);
+        if (restaurant == null)
+        {
+            return NotFound("Restaurant not found");
         }
 
+        var menuItem = _mapper.Map<MenuItem>(menuItemDTO);
+        menuItem.Restaurant = restaurant;
+        menuItem.Category = category;
 
-        [HttpGet("GetMenuItems")]
-        public async Task<IActionResult> GetMenuItems()
-        {
-            var menuItems = await _menuItemRepository.GetAll();
-            return Ok(menuItems);
-        }
+        // Ensure that MenuItemId is not being set here
+        // Debug or log menuItem to check if MenuItemId is populated
 
-        [HttpGet("GetSingleMenuItem")]
-        public async Task<IActionResult> GetSingleMenuItem(int menuId)
-        {
-            var menuItem = await _menuItemRepository.GetById(menuId);
-            return Ok(menuItem);
-        }
+        await _menuItemRepository.Add(menuItem);
 
-        [HttpPost("AddMenuItems")]
-        public async Task<IActionResult> AddMenuItems(MenuItemDTO menuItemDTO)
-        {
-            MenuItem menuItem = new MenuItem()
-            {
-                Name = menuItemDTO.Name,
-                Description = menuItemDTO.Description,
-                Price = menuItemDTO.Price,
-                Category = menuItemDTO.Category
-            };
-
-            await _menuItemRepository.Add(menuItem);
+        // Return the created MenuItem object
+        return CreatedAtAction(nameof(GetSingleMenuItem), new { menuId = menuItem.MenuItemId }, menuItem);
+    }
 
 
-            return Ok(menuItem);
-        }
 
-        [HttpPut("UpdateMenuItems")]
-        public async Task<IActionResult> UpdateMenuItems(MenuItemDTO menuItemDto, int menuId)
+    [HttpPut("UpdateMenuItem/{menuId}")]
+    public async Task<IActionResult> UpdateMenuItem(int menuId, MenuItemDTO menuItemDto)
+    {
+        try
         {
             var existingMenuItem = await _menuItemRepository.GetById(menuId);
-
             if (existingMenuItem == null)
             {
-                throw new Exception("MenuItem not found");
+                return NotFound("MenuItem not found");
             }
 
-            existingMenuItem.Name = menuItemDto.Name;
-            existingMenuItem.Description = menuItemDto.Description;
-            existingMenuItem.Price = menuItemDto.Price;
-            existingMenuItem.Category = menuItemDto.Category;
+            _mapper.Map(menuItemDto, existingMenuItem);
 
             await _menuItemRepository.Update(existingMenuItem, menuId);
+
             return Ok(existingMenuItem);
         }
-
-        [HttpDelete("DeleteMenuItems")]
-        public async Task<IActionResult> DeleteMenuItems(int menuItemId)
+        catch (DbUpdateException ex)
         {
-            var menuitem = _menuItemRepository.GetById(menuItemId);
-
-            await _menuItemRepository.Delete(menuItemId); //menuItem
-            return Ok(new { message = "MenuItem was added", menuItem = menuitem });
+            /*            _logger.LogError(ex, "Error occurred while updating a menu item.");*/
+            return StatusCode(500, "An error occurred while updating the entity.");
         }
+    }
+
+    [HttpDelete("DeleteMenuItem/{menuItemId}")]
+    public async Task<IActionResult> DeleteMenuItem(int menuItemId)
+    {
+        var menuItem = await _menuItemRepository.GetById(menuItemId);
+        if (menuItem == null)
+        {
+            return NotFound("MenuItem not found");
+        }
+
+        await _menuItemRepository.Delete(menuItemId);
+        return Ok(new { message = "MenuItem was deleted", menuItem });
     }
 }

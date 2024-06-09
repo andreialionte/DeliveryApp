@@ -1,4 +1,5 @@
-﻿using DeliveryApp.API.DataLayers;
+﻿using AutoMapper;
+using DeliveryApp.API.DataLayers;
 using DeliveryAppBackend.DataLayers.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,10 +8,12 @@ namespace DeliveryApp.API.Repository
     public class RestaurantRepository : IRestaurantRepository
     {
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public RestaurantRepository(DataContext context)
+        public RestaurantRepository(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Restaurant>> GetAll()
@@ -38,14 +41,16 @@ namespace DeliveryApp.API.Repository
                 throw new Exception("Restaurant not found");
             }
 
+            // Update individual properties
             existingRestaurant.Name = restaurant.Name;
-            existingRestaurant.Description = restaurant.Description;
+            /*            existingRestaurant.Description = restaurant.Description;*/
             existingRestaurant.Address = restaurant.Address;
             existingRestaurant.Email = restaurant.Email;
             existingRestaurant.PhoneNumber = restaurant.PhoneNumber;
-            existingRestaurant.DeliveryFee = restaurant.DeliveryFee;
+            /*            existingRestaurant.DeliveryFee = restaurant.DeliveryFee;*/
             existingRestaurant.OperatingHours = restaurant.OperatingHours;
 
+            // Save changes
             await _context.SaveChangesAsync();
 
             return existingRestaurant;

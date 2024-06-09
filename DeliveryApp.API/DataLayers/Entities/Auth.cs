@@ -9,7 +9,9 @@ namespace DeliveryApp.API.DataLayers.Entities
         [MaxLength(100)]
         [EmailAddress]
         public string? Email { get; set; }
+        [MaxLength]
         public byte[]? PasswordSalt { get; set; }
+        [MaxLength]
         public byte[]? PasswordHash { get; set; }
 
     }

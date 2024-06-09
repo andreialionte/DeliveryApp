@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DeliveryApp.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240409162953_AddingFK")]
-    partial class AddingFK
+    [Migration("20240518121038_Add_Photo_Urls_and_change_Category_Logic")]
+    partial class Add_Photo_Urls_and_change_Category_Logic
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,23 @@ namespace DeliveryApp.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Category", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("Category", "DeliveryAppSchema");
+                });
 
             modelBuilder.Entity("DeliveryApp.API.DataLayers.Entities.Auth", b =>
                 {
@@ -128,33 +145,6 @@ namespace DeliveryApp.API.Migrations
                     b.ToTable("DeliveryAgent", "DeliveryAppSchema");
                 });
 
-            modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.MenuItem", b =>
-                {
-                    b.Property<int>("MenuItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("RestaurantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("MenuItemId");
-
-                    b.ToTable("MenuItem", "DeliveryAppSchema");
-                });
-
             modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.Order", b =>
                 {
                     b.Property<int>("OrderId")
@@ -162,6 +152,9 @@ namespace DeliveryApp.API.Migrations
 
                     b.Property<string>("DeliveryAddress")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DeliveryAgentId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
@@ -176,6 +169,8 @@ namespace DeliveryApp.API.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("OrderId");
+
+                    b.HasIndex("DeliveryAgentId");
 
                     b.HasIndex("UserId");
 
@@ -249,13 +244,6 @@ namespace DeliveryApp.API.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("DeliveryFee")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -272,24 +260,59 @@ namespace DeliveryApp.API.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("RestaurantPhotoUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("RestaurantId");
 
                     b.ToTable("Restaurant", "DeliveryAppSchema");
                 });
 
-            modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.MenuItem", b =>
+            modelBuilder.Entity("MenuItem", b =>
                 {
-                    b.HasOne("DeliveryAppBackend.DataLayers.Entities.Restaurant", "Restaurant")
-                        .WithMany("MenuItems")
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<int>("MenuItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.Navigation("Restaurant");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MenuItemId"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("MenuItemPhotoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RestaurantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MenuItemId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("RestaurantId");
+
+                    b.ToTable("MenuItem", "DeliveryAppSchema");
                 });
 
             modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.Order", b =>
                 {
+                    b.HasOne("DeliveryAppBackend.DataLayers.Entities.DeliveryAgent", "DeliveryAgent")
+                        .WithMany()
+                        .HasForeignKey("DeliveryAgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DeliveryAppBackend.DataLayers.Entities.Restaurant", "Restaurant")
                         .WithMany("Orders")
                         .HasForeignKey("OrderId")
@@ -302,6 +325,8 @@ namespace DeliveryApp.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("DeliveryAgent");
+
                     b.Navigation("Restaurant");
 
                     b.Navigation("User");
@@ -309,7 +334,7 @@ namespace DeliveryApp.API.Migrations
 
             modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.OrderItem", b =>
                 {
-                    b.HasOne("DeliveryAppBackend.DataLayers.Entities.MenuItem", "MenuItem")
+                    b.HasOne("MenuItem", "MenuItem")
                         .WithMany("OrderItems")
                         .HasForeignKey("MenuItemId");
 
@@ -335,9 +360,28 @@ namespace DeliveryApp.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.MenuItem", b =>
+            modelBuilder.Entity("MenuItem", b =>
                 {
-                    b.Navigation("OrderItems");
+                    b.HasOne("Category", "Category")
+                        .WithMany("MenuItems")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DeliveryAppBackend.DataLayers.Entities.Restaurant", "Restaurant")
+                        .WithMany("MenuItems")
+                        .HasForeignKey("RestaurantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Restaurant");
+                });
+
+            modelBuilder.Entity("Category", b =>
+                {
+                    b.Navigation("MenuItems");
                 });
 
             modelBuilder.Entity("DeliveryAppBackend.DataLayers.Entities.Order", b =>
@@ -350,6 +394,11 @@ namespace DeliveryApp.API.Migrations
                     b.Navigation("MenuItems");
 
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("MenuItem", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }
